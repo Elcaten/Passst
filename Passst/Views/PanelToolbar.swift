@@ -533,11 +533,9 @@ struct PanelToolbar: View {
                    where: { $0.id == keyboardSuggestionID }
                ) {
                 apply(suggestion)
-            } else {
-                model.handle(
-                    .paste(plainText: keyPress.modifiers.contains(.shift))
-                )
             }
+            keyboardSuggestionID = nil
+            model.isSearchFocused = false
             return .handled
         }
 

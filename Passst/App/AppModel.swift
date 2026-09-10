@@ -302,6 +302,14 @@ final class AppModel {
         searchFilters = ClipboardSearchFilters()
     }
 
+    @discardableResult
+    func removeTrailingSearchFilter() -> Bool {
+        var filters = searchFilters
+        guard filters.removeTrailingFilter() else { return false }
+        searchFilters = filters
+        return true
+    }
+
     func rename(_ record: ClipboardRecord, to title: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }

@@ -35,6 +35,24 @@ final class PassstUITests: XCTestCase {
         )
     }
 
+    func testCommandASelectsAllSearchText() {
+        let search = app.textFields["Search history"]
+        search.typeText("café")
+        search.typeKey("a", modifierFlags: [.command])
+        search.typeText("swiftui")
+
+        XCTAssertEqual(search.value as? String, "swiftui")
+    }
+
+    func testReturnLeavesSearchOpenWithoutPasting() {
+        let search = app.textFields["Search history"]
+        search.typeText("café")
+        search.typeKey(.return, modifierFlags: [])
+
+        XCTAssertTrue(search.waitForExistence(timeout: 0.5))
+        XCTAssertEqual(search.value as? String, "café")
+    }
+
     func testPreviewOpensAndClosesFromKeyboard() {
         let search = app.textFields["Search history"]
         search.typeKey(.tab, modifierFlags: [])

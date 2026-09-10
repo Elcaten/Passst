@@ -71,4 +71,18 @@ struct ClipboardSearchFilters: Equatable, Sendable {
     var isEmpty: Bool {
         kinds.isEmpty && source == nil && date == nil
     }
+
+    @discardableResult
+    mutating func removeTrailingFilter() -> Bool {
+        if date != nil {
+            date = nil
+        } else if source != nil {
+            source = nil
+        } else if !kinds.isEmpty {
+            kinds.removeAll()
+        } else {
+            return false
+        }
+        return true
+    }
 }

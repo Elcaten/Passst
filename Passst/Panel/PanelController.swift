@@ -321,6 +321,7 @@ final class PanelController {
             return true
         }
         if hasCommand, characters == "a" {
+            guard !searchFieldHasKeyboardFocus else { return false }
             model.handle(.selectAll)
             return true
         }
@@ -348,6 +349,13 @@ final class PanelController {
             }
             return true
         case 36, 76:
+            if model.isSearchFocused {
+                if searchFieldHasKeyboardFocus {
+                    return false
+                }
+                model.isSearchFocused = false
+                return true
+            }
             guard !searchFieldHasKeyboardFocus else { return false }
             model.handle(.paste(plainText: hasShift))
             return true
@@ -367,6 +375,11 @@ final class PanelController {
         case 51, 117:
             if model.isSearchFocused {
                 if searchFieldHasKeyboardFocus {
+                    if event.keyCode == 51,
+                       model.searchQuery.isEmpty,
+                       model.removeTrailingSearchFilter() {
+                        return true
+                    }
                     return false
                 }
                 model.deleteLastSearchCharacter()
