@@ -322,7 +322,7 @@ actor HistoryRepository {
     }
 
     func sourceApplications() async throws -> [ClipboardSourceFilter] {
-        let rows = try database.read { db in
+        let rows: [Row] = try database.read { db in
             try Row.fetchAll(
                 db,
                 sql: """

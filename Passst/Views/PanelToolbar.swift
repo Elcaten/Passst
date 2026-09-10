@@ -1,6 +1,28 @@
 import AppKit
 import SwiftUI
 
+private struct SearchControlShape: InsettableShape {
+    private var insetAmount: CGFloat = 0
+
+    func path(in rect: CGRect) -> Path {
+        if #available(macOS 26.0, *) {
+            Capsule()
+                .inset(by: insetAmount)
+                .path(in: rect)
+        } else {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .inset(by: insetAmount)
+                .path(in: rect)
+        }
+    }
+
+    func inset(by amount: CGFloat) -> SearchControlShape {
+        var shape = self
+        shape.insetAmount += amount
+        return shape
+    }
+}
+
 struct PanelToolbar: View {
     @Bindable var model: AppModel
     @Environment(\.colorScheme) private var colorScheme
@@ -132,18 +154,18 @@ struct PanelToolbar: View {
         ZStack {
             if #available(macOS 26.0, *) {
                 Color.clear
-                    .glassEffect(.regular, in: .capsule)
+                    .glassEffect(.regular, in: SearchControlShape())
             } else {
-                Capsule()
+                SearchControlShape()
                     .fill(.regularMaterial)
             }
 
-            Capsule()
+            SearchControlShape()
                 .fill(
                     Color.primary.opacity(colorScheme == .dark ? 0.075 : 0.06)
                 )
 
-            Capsule()
+            SearchControlShape()
                 .strokeBorder(
                     Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.135),
                     lineWidth: 1
@@ -210,7 +232,7 @@ struct PanelToolbar: View {
             glassCapsuleBackground
         )
         .background {
-            Capsule()
+            SearchControlShape()
                 .fill(
                     Color.primary.opacity(
                         searchExpanded
@@ -221,7 +243,7 @@ struct PanelToolbar: View {
         }
         .overlay {
             if searchExpanded && model.isSearchFocused {
-                Capsule()
+                SearchControlShape()
                     .stroke(Color.accentColor, lineWidth: 2.5)
             }
         }
@@ -230,7 +252,7 @@ struct PanelToolbar: View {
             radius: 10,
             y: 4
         )
-        .contentShape(Capsule())
+        .contentShape(SearchControlShape())
         .onTapGesture {
             guard !searchExpanded else { return }
             activateSearch()
