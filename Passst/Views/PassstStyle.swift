@@ -2,13 +2,25 @@ import AppKit
 import SwiftUI
 
 enum PassstStyle {
-    static let panelCornerRadius: CGFloat = 26
+    static var panelCornerRadius: CGFloat {
+        if #available(macOS 26.0, *) {
+            26
+        } else {
+            8
+        }
+    }
     static let toolbarHeight: CGFloat = 60
 
     static let cardWidth: CGFloat = 244
     static let cardHeight: CGFloat = 228
     static let cardHeaderHeight: CGFloat = 60
-    static let cardCornerRadius: CGFloat = 20
+    static var cardCornerRadius: CGFloat {
+        if #available(macOS 26.0, *) {
+            20
+        } else {
+            8
+        }
+    }
     static let cardSpacing: CGFloat = 12
 
     static let panelHorizontalPadding: CGFloat = 20
