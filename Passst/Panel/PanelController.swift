@@ -332,6 +332,7 @@ final class PanelController {
 
         switch event.keyCode {
         case 123:
+            guard !searchFieldHasKeyboardFocus else { return false }
             if hasCommand {
                 model.handle(.moveToBoundary(.first, extending: hasShift))
             } else {
@@ -339,6 +340,7 @@ final class PanelController {
             }
             return true
         case 124:
+            guard !searchFieldHasKeyboardFocus else { return false }
             if hasCommand {
                 model.handle(.moveToBoundary(.last, extending: hasShift))
             } else {
@@ -346,6 +348,7 @@ final class PanelController {
             }
             return true
         case 36, 76:
+            guard !searchFieldHasKeyboardFocus else { return false }
             model.handle(.paste(plainText: hasShift))
             return true
         case 49:
