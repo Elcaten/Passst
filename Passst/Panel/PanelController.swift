@@ -2,8 +2,14 @@ import AppKit
 import QuartzCore
 import SwiftUI
 
+enum PanelNavigationBoundary {
+    case first
+    case last
+}
+
 enum PanelKeyCommand {
     case move(delta: Int, extending: Bool)
+    case moveToBoundary(PanelNavigationBoundary, extending: Bool)
     case copy
     case paste(plainText: Bool)
     case preview
@@ -326,10 +332,18 @@ final class PanelController {
 
         switch event.keyCode {
         case 123:
-            model.handle(.move(delta: -1, extending: hasShift))
+            if hasCommand {
+                model.handle(.moveToBoundary(.first, extending: hasShift))
+            } else {
+                model.handle(.move(delta: -1, extending: hasShift))
+            }
             return true
         case 124:
-            model.handle(.move(delta: 1, extending: hasShift))
+            if hasCommand {
+                model.handle(.moveToBoundary(.last, extending: hasShift))
+            } else {
+                model.handle(.move(delta: 1, extending: hasShift))
+            }
             return true
         case 36, 76:
             model.handle(.paste(plainText: hasShift))
