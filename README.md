@@ -198,6 +198,15 @@ swift build
 swift test
 ```
 
+To build a native debug application, launch it, and rebuild whenever source or resources change:
+
+```sh
+scripts/dev-app.sh
+```
+
+Press `Ctrl-C` to stop watching. Pass `--once` for one rebuild and launch, or `--no-launch`
+to build `dist/Passst-dev.app` once without opening it.
+
 To create the Universal 2 application, DMG, ZIP, and checksums:
 
 ```sh
