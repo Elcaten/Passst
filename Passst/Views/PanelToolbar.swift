@@ -6,6 +6,7 @@ struct PanelToolbar: View {
     @Environment(\.colorScheme) private var colorScheme
     @FocusState private var searchFocused: Bool
     @State private var hoveredSuggestionID: String?
+    @State private var keyboardSuggestionID: String?
     @State private var toolbarMenuHovered = false
     @State private var searchHovered = false
 
@@ -176,6 +177,9 @@ struct PanelToolbar: View {
                     .textFieldStyle(.plain)
                     .font(.system(size: 15, weight: .regular))
                     .focused($searchFocused)
+                    .onKeyPress { keyPress in
+                        handleSearchKeyPress(keyPress)
+                    }
                     .tint(Color.accentColor)
                     .frame(maxWidth: .infinity)
                     .transition(.opacity.combined(with: .offset(x: -5)))
@@ -454,7 +458,7 @@ struct PanelToolbar: View {
                     .frame(height: 38)
                     .background(
                         Color.accentColor.opacity(
-                            hoveredSuggestionID == suggestion.id ? 0.13 : 0
+                            highlightedSuggestionID == suggestion.id ? 0.13 : 0
                         ),
                         in: RoundedRectangle(cornerRadius: 9, style: .continuous)
                     )
@@ -481,8 +485,62 @@ struct PanelToolbar: View {
         case let .date(date):
             model.setDateFilter(date)
         }
+        keyboardSuggestionID = nil
         model.searchQuery = ""
         searchFocused = true
+    }
+
+    private var highlightedSuggestionID: String? {
+        hoveredSuggestionID ?? keyboardSuggestionID
+    }
+
+    private func handleSearchKeyPress(_ keyPress: KeyPress) -> KeyPress.Result {
+        if keyPress.key == .downArrow
+            || (keyPress.modifiers.contains(.control) && keyPress.key == "n") {
+            return moveKeyboardSuggestion(by: 1)
+        }
+
+        if keyPress.key == .upArrow
+            || (keyPress.modifiers.contains(.control) && keyPress.key == "p") {
+            return moveKeyboardSuggestion(by: -1)
+        }
+
+        if keyPress.key == .return {
+            if let keyboardSuggestionID,
+               let suggestion = filterSuggestions.first(
+                   where: { $0.id == keyboardSuggestionID }
+               ) {
+                apply(suggestion)
+            } else {
+                model.handle(
+                    .paste(plainText: keyPress.modifiers.contains(.shift))
+                )
+            }
+            return .handled
+        }
+
+        return .ignored
+    }
+
+    private func moveKeyboardSuggestion(by delta: Int) -> KeyPress.Result {
+        let suggestions = filterSuggestions
+        guard !suggestions.isEmpty else {
+            keyboardSuggestionID = nil
+            return .ignored
+        }
+
+        let targetIndex: Int
+        if let keyboardSuggestionID,
+           let currentIndex = suggestions.firstIndex(
+               where: { $0.id == keyboardSuggestionID }
+           ) {
+            targetIndex = min(max(currentIndex + delta, 0), suggestions.count - 1)
+        } else {
+            targetIndex = delta > 0 ? 0 : suggestions.count - 1
+        }
+
+        keyboardSuggestionID = suggestions[targetIndex].id
+        return .handled
     }
 
     private var toolbarMenu: some View {

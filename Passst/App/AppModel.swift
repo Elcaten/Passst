@@ -361,6 +361,26 @@ final class AppModel {
             } else {
                 selection.move(delta: delta, extending: extending, records: records)
             }
+        case let .moveToBoundary(boundary, extending):
+            let targetID: UUID? = switch boundary {
+            case .first:
+                records.first?.id
+            case .last:
+                records.last?.id
+            }
+            guard let targetID else { return }
+            if previewedID != nil {
+                selection.select(id: targetID, records: records)
+                previewedID = nil
+                previewPayload = nil
+                togglePreview()
+            } else {
+                selection.select(
+                    id: targetID,
+                    records: records,
+                    modifiers: extending ? [.shift] : []
+                )
+            }
         case .copy:
             copySelection()
         case let .paste(plainText):
